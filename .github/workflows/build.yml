@@ -77,7 +77,7 @@ jobs:
           rsync -a /tmp/out/ ./
           touch .nojekyll
           git add -A
-          git -c user.name="Mirrorz Bot" -c user.email="bot@mirrorz.org" \
+          git -c user.name="BaldHead Bot" -c user.email="tianxiang.deng@foxmail.com" \
             commit --allow-empty \
             -m "GitHub Actions build ${GITHUB_RUN_NUMBER}" \
             -m "$source_msg"
