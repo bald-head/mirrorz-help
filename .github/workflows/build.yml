@@ -14,7 +14,7 @@ jobs:
       matrix:
         # Currently mirrorz build is done by cloudflare pages, so here we only build cernet
         # build_type: [mirrorz, cernet]
-        build_type: [cernet]
+        build_type: [baldhead]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,7 +25,7 @@ jobs:
           node-version: '18'
       - name: Prepare env
         run: |
-          if [ ${{ matrix.build_type }} == 'cernet' ]; then
+          if [ ${{ matrix.build_type }} == 'baldhead' ]; then
             echo "NEXT_PUBLIC_SITE_HOST=help.mirrors.cernet.edu.cn" > .env.local
             echo "NEXT_PUBLIC_JSON_ENDPOINT=https://mirror.baldhead.cn/static/json/legacy-pack.json" >> .env.local
             echo "NEXT_PUBLIC_MIRROZ_HOST=mirror.baldhead.cn" >> .env.local
