@@ -13,12 +13,11 @@ jobs:
     steps:
       # 检出代码
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # 下载 JSON 文件到 public 目录
       - name: Download JSON file
         run: |
-          mkdir -p ./public
           curl -sL https://mirrorz.org/static/json/legacy-pack.json -o ./public/legacy-pack.json
 
       # 检查是否有变更
