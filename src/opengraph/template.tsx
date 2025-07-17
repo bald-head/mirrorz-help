@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports -- required for satori & resvg
 import React from 'react';
 
 interface ContentProps {
@@ -8,13 +9,13 @@ interface ContentProps {
   path: string
 }
 
-export const Content = ({
+export function Content({
   siteName = 'MirrorZ Help',
   titleLine1,
   titleLine2,
   domain = 'help.mirrorz.org',
   path
-}: ContentProps) => {
+}: ContentProps) {
   return (
     <div
       style={{
@@ -117,14 +118,14 @@ export const Content = ({
       </div>
     </div>
   );
-};
+}
 
 interface DefaultProps {
   siteName: string,
   domain: string
 }
 
-export const Default = ({ siteName, domain }: DefaultProps) => {
+export function Default({ siteName, domain }: DefaultProps) {
   return (
     <div
       style={{
@@ -203,4 +204,4 @@ export const Default = ({ siteName, domain }: DefaultProps) => {
       </div>
     </div>
   );
-};
+}

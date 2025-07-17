@@ -27,16 +27,16 @@ const styles = style9.create({
   }
 });
 
-interface CopyToClipboardProps extends Omit<JSX.IntrinsicElements['button'], 'className'> {
+interface CopyToClipboardProps extends Omit<React.JSX.IntrinsicElements['button'], 'className'> {
   getValue?: () => string,
   value?: string
 }
 
-export const CopyToClipboard = ({
+export function CopyToClipboard({
   value,
   getValue,
   ...props
-}: CopyToClipboardProps) => {
+}: CopyToClipboardProps) {
   const { copied, copy } = useClipboard({ timeout: 2500 });
 
   const handleClick = useCallback<React.MouseEventHandler<HTMLButtonElement>>(() => {
@@ -60,4 +60,4 @@ export const CopyToClipboard = ({
         : <IconClipboard className={styles('icon')} />}
     </button>
   );
-};
+}

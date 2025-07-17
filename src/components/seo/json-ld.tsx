@@ -8,7 +8,7 @@ const sharedJsonLd = {
   logo: `https://${siteHost}/favicon/android-icon-192x192.png`
 };
 
-interface JsonLDProps extends Omit<JSX.IntrinsicElements['script'], 'type' | 'dangerouslySetInnerHTML' | 'children' | 'title'> {
+interface JsonLDProps extends Omit<React.JSX.IntrinsicElements['script'], 'type' | 'dangerouslySetInnerHTML' | 'children' | 'title'> {
   isContent?: boolean,
   title?: string,
   siteName?: string,
@@ -67,6 +67,7 @@ export default function JsonLD({
       {...rest}
       dangerouslySetInnerHTML={{
         __html: JSON.stringify((Array.isArray(data) && data.length === 1) ? data[0] : data, safeJsonLdReplacer)
-      }} />
+      }}
+    />
   );
 }

@@ -15,6 +15,7 @@ import { TabItem, Tabs } from '../../tabs';
 import { buildCode, buildEchoTee } from './build-code';
 import { useMirrorHttpsEnabled } from '@/contexts/mirror-enable-https';
 import { useMirrorSudoEnabled } from '@/contexts/mirror-enable-sudo';
+import { EMPTY_ARRAY } from '../../../lib/client/constant';
 
 interface CodeBlockProps {
   isHttpProtocol?: boolean,
@@ -39,21 +40,23 @@ const styles = style9.create({
   }
 });
 
-const reducer = (prevState: Record<string, string>, value: MenuValue) => ({
-  ...prevState,
-  ...value
-});
+function reducer(prevState: Record<string, string>, value: MenuValue) {
+  return {
+    ...prevState,
+    ...value
+  };
+}
 
-const createInitialState = (menus: Menu[]): Record<string, string> => {
+function createInitialState(menus: Menu[]): Record<string, string> {
   return menus.reduce<Record<string, string>>((acc, menu) => {
     const value = menu.items[0][1];
     acc = { ...acc, ...value };
     return acc;
   }, {});
-};
+}
 
 function CodeBlock({
-  menus = [],
+  menus = EMPTY_ARRAY,
   isHttpProtocol = true,
   code,
   codeLanguage,
@@ -76,9 +79,12 @@ function CodeBlock({
   }, [cname, currentSelectedMirror, data, isLoading]);
 
   const finalCode = useMemo(() => {
+    const url = new URL('https://' + mirrorUrl);
     const variable: Record<string, string> = {
       ...variableState,
       mirror: mirrorUrl,
+      host: url.host,
+      path: url.pathname,
       http_protocol: isHttpProtocol ? (httpsEnabled ? 'https://' : 'http://') : '',
       sudo: sudoEnabled ? 'sudo ' : '',
       sudoE: sudoEnabled ? 'sudo -E ' : ''
@@ -87,11 +93,9 @@ function CodeBlock({
   }, [code, httpsEnabled, isHttpProtocol, mirrorUrl, sudoEnabled, variableState]);
 
   /** Validation */
-  if (process.env.NODE_ENV !== 'production') {
-    if (!code.includes('{{') && !enableQuickSetup) {
-      // eslint-disable-next-line no-console -- log message
-      console.warn('CodeBlock: If you don\' use {{variable}} syntax in your code, and don\'t use "enableQuickSetup", you don\'t have to use <CodeBlock />. The extraneous <CodeBlock /> has code starts with:', code.split('\n')[0]);
-    }
+  if (process.env.NODE_ENV !== 'production' && !code.includes('{{') && !enableQuickSetup) {
+    // eslint-disable-next-line no-console -- log message
+    console.warn('CodeBlock: If you don\' use {{variable}} syntax in your code, and don\'t use "enableQuickSetup", you don\'t have to use <CodeBlock />. The extraneous <CodeBlock /> has code starts with:', code.split('\n')[0]);
   }
 
   const codeBlockMenu = menus.length > 0 && <CodeBlockMenu menus={menus} dispatch={dispatch} />;

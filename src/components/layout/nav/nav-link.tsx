@@ -60,24 +60,20 @@ const styles = style9.create({
   }
 });
 
-const SidebarLink = ({
+function SidebarLink({
   href,
   isActive = false,
   title,
   isPending
-}: SidebarLinkProps) => {
+}: SidebarLinkProps) {
   return (
     <Link
       // Disable prefetch when in view (prevent unnecessary requests)
       prefetch={false}
       href={href}
       ref={useCallback((el: HTMLAnchorElement | null) => {
-        if (el) {
-          if (isActive) {
-            if ('scrollIntoViewIfNeeded' in el && typeof el.scrollIntoViewIfNeeded === 'function') {
-              el.scrollIntoViewIfNeeded();
-            }
-          }
+        if (el && isActive && 'scrollIntoViewIfNeeded' in el && typeof el.scrollIntoViewIfNeeded === 'function') {
+          el.scrollIntoViewIfNeeded();
         }
       }, [isActive])}
       title={title}
@@ -87,6 +83,6 @@ const SidebarLink = ({
       {title}
     </Link>
   );
-};
+}
 
 export default memo(SidebarLink);

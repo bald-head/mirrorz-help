@@ -1,5 +1,6 @@
 import MirrorZLogo from '@/components/mirrorz-logo';
-import { memo, useEffect, useState } from 'react';
+import { memo } from 'react';
+import { CurrentYear } from 'foxact/current-year';
 import style9 from 'style9';
 import ExternalLink from '../../external-link';
 import NextLink from 'next/link';
@@ -95,19 +96,11 @@ const styles = style9.create({
   }
 });
 
-const CurrentYear = () => {
-  const [year, setYear] = useState(2023);
-  useEffect(() => {
-    setYear(new Date().getFullYear());
-  }, []);
-  return <span>{year}</span>;
-};
+function Header({ children }: React.PropsWithChildren) {
+  return <div className={styles('footer_header')}>{children}</div>;
+}
 
-const Header = ({ children }: React.PropsWithChildren) => (
-  <div className={styles('footer_header')}>{children}</div>
-);
-
-const FooterLink = ({ href, ...props }: Omit<JSX.IntrinsicElements['a'], 'ref'>) => {
+function FooterLink({ href, ...props }: Omit<React.JSX.IntrinsicElements['a'], 'ref'>) {
   if (!href) {
     return <div className={styles('footer_link')}>{props.children}</div>;
   }
@@ -125,7 +118,7 @@ const FooterLink = ({ href, ...props }: Omit<JSX.IntrinsicElements['a'], 'ref'>)
       <NextLink href={href} className={styles('footer_link')} {...props} />
     </div>
   );
-};
+}
 
 // TODO: finish footer
 function Footer() {
@@ -140,7 +133,7 @@ function Footer() {
             </ExternalLink>
           </div>
           <div className={styles('copyright')}>
-            &copy; <CurrentYear />
+            &copy; <CurrentYear defaultYear={2024} />
           </div>
         </div>
         <div className={styles('footer_section_base')}>

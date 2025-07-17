@@ -2,6 +2,6 @@
 
 with pkgs; mkShell {
     buildInputs = [
-        nodejs-18_x
+        nodejs_22
     ];
 }

@@ -2,11 +2,12 @@ import { useMemo } from 'react';
 
 export type OS = 'undetermined' | 'macos' | 'ios' | 'windows' | 'android' | 'linux';
 
-export const getOS = (): OS => {
+const macosPlatforms = /macintosh|macintel|macppc|mac68k/i;
+const windowsPlatforms = /win32|win64|windows|wince/i;
+const iosPlatforms = /iphone|ipad|ipod/i;
+
+export function getOS(): OS {
   const { userAgent } = window.navigator;
-  const macosPlatforms = /(macintosh)|(macintel)|(macppc)|(mac68k)/i;
-  const windowsPlatforms = /(win32)|(win64)|(windows)|(wince)/i;
-  const iosPlatforms = /(iphone)|(ipad)|(ipod)/i;
 
   if (macosPlatforms.test(userAgent)) {
     return 'macos';
@@ -25,12 +26,14 @@ export const getOS = (): OS => {
   }
 
   return 'undetermined';
-};
+}
 
-export const useOs = (): OS => useMemo(() => {
-  if (typeof window !== 'undefined') {
-    return getOS();
-  }
+export function useOs(): OS {
+  return useMemo(() => {
+    if (typeof window !== 'undefined') {
+      return getOS();
+    }
 
-  return 'undetermined';
-}, []);
+    return 'undetermined';
+  }, []);
+}

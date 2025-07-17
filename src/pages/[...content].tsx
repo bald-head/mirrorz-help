@@ -25,7 +25,7 @@ export default function ContentPage({ content, toc, meta, cname }: ContentProps)
         //   height: 630
         // }}
       />
-      <Layout meta={meta as any} toc={toc} cname={cname} isContent>
+      <Layout meta={meta} toc={toc} cname={cname} isContent>
         <DocumentationWrapper>
           {parsedContent}
         </DocumentationWrapper>
@@ -36,41 +36,35 @@ export default function ContentPage({ content, toc, meta, cname }: ContentProps)
 }
 
 // Deserialize a client React tree from JSON.
-function reviveNodeOnClient(key: unknown, val: any) {
+function reviveNodeOnClient(parentPropertyName: string, val: any) {
   if (Array.isArray(val) && val[0] === '$r') {
     // Assume it's a React element.
-    let type = val[1];
-    const key = val[2];
+    let Type = val[1];
+    let key = val[2];
+    if (key == null) {
+      key = parentPropertyName; // Index within a parent.
+    }
     let props = val[3];
-    if (type === 'wrapper') {
-      type = Fragment;
+    if (Type === 'wrapper') {
+      Type = Fragment;
       props = { children: props.children };
     }
-    if (type in MDXComponents) {
-      type = MDXComponents[type];
+    if (Type in MDXComponents) {
+      Type = MDXComponents[Type];
     }
-    if (!type) {
-      if (process.env.NODE_ENV !== 'production') {
-        // eslint-disable-next-line no-console -- log error
-        console.warn(`Unknown type: ${type}`);
+    if (!Type) {
+      if (Type !== null) {
+        console.error('[reviveNodeOnClient] Unknown type: ' + Type);
       }
-      type = Fragment;
+      Type = Fragment;
     }
-    return {
-      $$typeof: Symbol.for('react.element'),
-      type,
-      key,
-      ref: null,
-      props,
-      _owner: null
-    };
+    return <Type key={key} {...props} />;
   }
+
   return val;
 }
 
-export const getStaticProps: GetStaticProps<ContentProps, { content: string[], cname: string }> = (context) => {
-  return getContentBySegments(context.params?.content || []);
-};
+export const getStaticProps: GetStaticProps<ContentProps, { content: string[], cname: string }> = (context) => getContentBySegments(context.params?.content || []);
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const segments = await getAvaliableSegments();

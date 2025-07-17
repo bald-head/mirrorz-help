@@ -8,6 +8,7 @@ import { useState } from 'react';
 import style9 from 'style9';
 
 import type { StyleWithAtRulesAndFalsy } from '@/types/style9';
+import { EMPTY_ARRAY } from '../../lib/client/constant';
 
 interface TabsProps {
   items: string[],
@@ -67,41 +68,40 @@ const styles = style9.create({
   }
 });
 
-export const Tabs = ({ children, items, defaultValue }: React.PropsWithChildren<TabsProps>) => {
+export function Tabs({ children, items, defaultValue }: React.PropsWithChildren<TabsProps>) {
   const [value, setValue] = useState(defaultValue || items[0]);
   return (
     <TabsRoot className={styles('root')} value={value} onValueChange={setValue}>
       <TabsList className={styles('list')}>
         {
-          items.map(item => {
-            return (
-              <TabsTrigger
-                key={item}
-                className={styles({
-                  trigger: true,
-                  trigger_active: value === item,
-                  trigger_inactive: value !== item
-                })}
-                value={item}>
-                {item}
-              </TabsTrigger>
-            );
-          })
+          items.map(item => (
+            <TabsTrigger
+              key={item}
+              className={styles({
+                trigger: true,
+                trigger_active: value === item,
+                trigger_inactive: value !== item
+              })}
+              value={item}
+            >
+              {item}
+            </TabsTrigger>
+          ))
         }
       </TabsList>
       {children}
     </TabsRoot>
   );
-};
+}
 
-export const TabItem = ({
+export function TabItem({
   children,
   value,
-  xstyle = []
-}: React.PropsWithChildren<{ value: string, xstyle?: StyleWithAtRulesAndFalsy[] }>) => {
+  xstyle = EMPTY_ARRAY
+}: React.PropsWithChildren<{ value: string, xstyle?: StyleWithAtRulesAndFalsy[] }>) {
   return (
     <TabsContent className={style9(styles.tab, ...xstyle)} value={value}>
       {children}
     </TabsContent>
   );
-};
+}

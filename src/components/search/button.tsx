@@ -85,7 +85,7 @@ const styles = style9.create({
   }
 });
 
-function Kbd(props: JSX.IntrinsicElements['kbd']) {
+function Kbd(props: React.JSX.IntrinsicElements['kbd']) {
   return (
     <kbd className={styles('kbd')} {...props} />
   );
@@ -109,7 +109,7 @@ export const SearchButtonOnMobile = memo(() => {
   );
 });
 
-const SearchButtonSuffix = () => {
+function SearchButtonSuffix() {
   const [icon, setIcon] = useState<string>('\u2318');
 
   useEffect(() => {
@@ -129,7 +129,7 @@ const SearchButtonSuffix = () => {
       <Kbd>K</Kbd>
     </span>
   );
-};
+}
 
 export const SearchButtonInSideNav = memo(() => {
   const setSearchOpen = useSetSearchOpen();

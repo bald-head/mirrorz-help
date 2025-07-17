@@ -96,16 +96,14 @@ function ToCAside({ toc }: ToCProps) {
         <ul className={styles('list')}>
           {toc.length > 0
             && toc.map((h, i) => {
-              if (process.env.NODE_ENV !== 'production') {
-                if (typeof h.url !== 'string') {
-                  // eslint-disable-next-line no-console -- only log in DEV
-                  console.error('Heading does not have URL');
-                }
+              if (process.env.NODE_ENV !== 'production' && typeof h.url !== 'string') {
+              // eslint-disable-next-line no-console -- only log in DEV
+                console.error('Heading does not have URL');
               }
               if (h.depth < 2 && h.depth > 3) return null;
               return (
                 <li
-                  key={`heading-${h.url}-${i}`}
+                  key={`heading-${h.url}-${h.text}`}
                   className={styles(
                     'item',
                     h.depth === 3 && 'item_deep',

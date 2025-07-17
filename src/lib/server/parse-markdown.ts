@@ -1,5 +1,6 @@
-import path from 'path';
-import fsPromises from 'fs/promises';
+import path from 'node:path';
+import fsPromises from 'node:fs/promises';
+import { Buffer } from 'node:buffer';
 import { default as matter } from 'gray-matter';
 import * as metroCache from 'metro-cache';
 
@@ -25,7 +26,7 @@ import {
 
 import rehypeExternalLinks from '@/compiled/rehype-external-links';
 
-const { FileStore, stableHash } = metroCache as any;
+const { FileStore, stableHash } = metroCache;
 
 const contentsPath = path.resolve(process.cwd(), 'contents');
 
@@ -42,39 +43,40 @@ export interface ContentProps {
   cname: string
 }
 
-const fromHrefToSegments = (href: string) => {
+function fromHrefToSegments(href: string) {
   return href.replaceAll(/^\/|\/$/g, '').split('/');
-};
+}
 
-export const getAvaliableSegments = () => {
+export function getAvaliableSegments() {
   return Promise.resolve(Object.keys(routesJson).map(p => fromHrefToSegments(p)));
-};
+}
 
 const _cache = new Map();
-const asyncCache = async <T>(key: string, fn: () => Promise<T>): Promise<T> => {
+async function asyncCache<T>(key: string, fn: () => Promise<T>): Promise<T> {
   if (_cache.has(key)) return _cache.get(key);
   const result = await fn();
   _cache.set(key, result);
   return result;
-};
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~ IMPORTANT: BUMP THIS IF YOU CHANGE ANY CODE BELOW ~~~
-const DISK_CACHE_BREAKER = 4;
+const DISK_CACHE_BREAKER = 6;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 const store = new FileStore({
   root: `${process.cwd()}/node_modules/.cache/mirrorz-help-mdx-cache/`
 });
 
-const fakeRequire = (name: string) => {
+function fakeRequire(name: string) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- fake require
   if (name === 'react/jsx-runtime') return require('react/jsx-runtime');
   // For each fake MDX import, give back the string component name.
   // It will get serialized later.
   return name;
-};
+}
 
-export const getContentBySegments = async (segments: string[]): Promise<{ props: ContentProps } | { notFound: true }> => {
+export async function getContentBySegments(segments: string[]): Promise<{ props: ContentProps } | { notFound: true }> {
   const id = segments.length === 0 ? 'index' : (segments.join('/') || 'index');
   let raw;
   try {
@@ -118,7 +120,7 @@ export const getContentBySegments = async (segments: string[]): Promise<{ props:
         `[CMS] Reading compiled MDX for /${id} from ./node_modules/.cache/`
       );
     }
-    return cached;
+    return cached as any;
   }
   Log.info(
     `[CMS] Cache miss for MDX for /${id} from ./node_modules/.cache/`
@@ -163,12 +165,16 @@ export const getContentBySegments = async (segments: string[]): Promise<{ props:
   // Cache it on the disk.
   await store.set(hash, output);
   return output;
-};
+}
 
 // Serialize a server React tree node to JSON.
-function stringifyNodeOnServer(key: string, val: any) {
-  if (val != null && val.$$typeof === Symbol.for('react.element')) {
+function stringifyNodeOnServer(key: unknown, val: any) {
+  if (
+    val != null
+    && val.$$typeof === Symbol.for('react.transitional.element')
+  ) {
     // Remove fake MDX props.
+
     const { mdxType, originalType, parentName, ...cleanProps } = val.props;
     return [
       '$r',
@@ -202,10 +208,12 @@ const headerTypes = new Set([
 function extractHeaders(children: React.ReactNode, depth: number, out: ToC[]) {
   for (const child of Children.toArray(children)) {
     if (typeof child === 'object' && 'type' in child && typeof child.type === 'string' && headerTypes.has(child.type)) {
+      const cprops = child.props as Record<string, any>;
+
       const header = {
-        url: `#${child.props.id}`,
+        url: `#${cprops.id}`,
         depth: (child.type && Number.parseInt(child.type.replace('h', ''), 10)) || 0,
-        text: child.props.children
+        text: cprops.children
       };
       out.push(header);
     }
