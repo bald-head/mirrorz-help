@@ -98,7 +98,7 @@ export async function getContentBySegments(segments: string[]): Promise<{ props:
     throw e1;
   }
 
-  const lockfile = await asyncCache('package-lock.json', () => fsPromises.readFile(path.join(process.cwd(), 'package-lock.json'), { encoding: 'utf-8' }));
+  const lockfile = await asyncCache('pnpm-lock.yaml', () => fsPromises.readFile(path.join(process.cwd(), 'pnpm-lock.yaml'), { encoding: 'utf-8' }));
   const mdxComponentNames = Object.keys(MDXComponents);
 
   const hash = Buffer.from(
@@ -170,8 +170,7 @@ export async function getContentBySegments(segments: string[]): Promise<{ props:
 // Serialize a server React tree node to JSON.
 function stringifyNodeOnServer(key: unknown, val: any) {
   if (
-    val != null
-    && val.$$typeof === Symbol.for('react.transitional.element')
+    val?.$$typeof === Symbol.for('react.transitional.element')
   ) {
     // Remove fake MDX props.
 

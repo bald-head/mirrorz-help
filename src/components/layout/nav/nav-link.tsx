@@ -1,15 +1,16 @@
 import { memo, useCallback } from 'react';
 import Link from 'next/link';
-import style9 from 'style9';
+import * as stylex from '@stylexjs/stylex';
+import { useRouter } from 'next/router';
 
 interface SidebarLinkProps {
-  href: string,
+  pathname: string,
   isActive?: boolean,
   title: string,
   isPending: boolean
 }
 
-const styles = style9.create({
+const styles = stylex.create({
   base: {
     paddingTop: '8px',
     paddingBottom: '8px',
@@ -26,59 +27,82 @@ const styles = style9.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderTopRightRadius: '8px',
-    borderBottomRightRadius: '8px',
-    borderTopLeftRadius: '8px',
-    borderBottomLeftRadius: '8px',
-    '@media screen and (min-width: 840px)': {
-      borderTopRightRadius: '8px',
-      borderBottomRightRadius: '8px',
-      borderTopLeftRadius: 0,
-      borderBottomLeftRadius: 0
+    borderTopRightRadius: {
+      default: '8px',
+      '@media (min-width: 840px)': '8px'
     },
-    ':hover': {
-      backgroundColor: 'var(--bg-hover)'
+    borderBottomRightRadius: {
+      default: '8px',
+      '@media (min-width: 840px)': '8px'
+    },
+    borderTopLeftRadius: {
+      default: '8px',
+      '@media (min-width: 840px)': 0
+    },
+    borderBottomLeftRadius: {
+      default: '8px',
+      '@media (min-width: 840px)': 0
+    },
+    backgroundColor: {
+      ':hover': 'var(--bg-hover)'
     }
   },
   active: {
     fontWeight: 700,
-    color: 'var(--text-link)',
-    backgroundColor: 'var(--bg-highlight)',
-    ':hover': {
-      backgroundColor: 'var(--bg-highlight)',
-      color: 'var(--text-link)'
+    color: {
+      default: 'var(--text-link)',
+      ':hover': 'var(--text-link)'
+    },
+    backgroundColor: {
+      default: 'var(--bg-highlight)',
+      ':hover': 'var(--bg-highlight)'
     }
   },
   inactive: {
     color: 'var(--text-primary)'
   },
   pending: {
-    backgroundColor: 'var(--bg-hover)',
-    ':hover': {
-      backgroundColor: 'var(--bg-hover)'
+    backgroundColor: {
+      default: 'var(--bg-hover)',
+      ':hover': 'var(--bg-hover)'
     }
   }
 });
 
+/**
+ * Navigate to other software
+ */
 function SidebarLink({
-  href,
+  pathname,
   isActive = false,
   title,
   isPending
 }: SidebarLinkProps) {
+  const router = useRouter();
+
+  /**
+   * We only handles relative link here. If external link is really needed, we need to implement proper target="_blank"
+   */
+  if (!pathname.startsWith('/')) {
+    throw new TypeError('<SidebarLink /> pathname must start with "/"');
+  }
+
   return (
     <Link
       // Disable prefetch when in view (prevent unnecessary requests)
       prefetch={false}
-      href={href}
+      href={{
+        pathname,
+        query: router.query.mirror ? { mirror: router.query.mirror || null } : undefined
+      }}
       ref={useCallback((el: HTMLAnchorElement | null) => {
         if (el && isActive && 'scrollIntoViewIfNeeded' in el && typeof el.scrollIntoViewIfNeeded === 'function') {
           el.scrollIntoViewIfNeeded();
         }
       }, [isActive])}
       title={title}
-      target={href.startsWith('https://') ? '_blank' : undefined}
-      className={styles('base', isActive ? 'active' : 'inactive', isPending && 'pending')}
+      {...stylex.props(styles.base, isActive ? styles.active : styles.inactive, isPending && styles.pending)}
+      // target={pathname.startsWith('https://') ? '_blank' : undefined}
     >
       {title}
     </Link>

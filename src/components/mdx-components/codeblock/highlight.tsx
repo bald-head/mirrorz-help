@@ -23,8 +23,9 @@ import clojure from 'highlight.js/lib/languages/clojure';
 import dos from 'highlight.js/lib/languages/dos';
 import perl from 'highlight.js/lib/languages/perl';
 import json from 'highlight.js/lib/languages/json';
+import scheme from 'highlight.js/lib/languages/scheme';
 
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 
 const lowlight = createLowlight();
 
@@ -61,6 +62,8 @@ lowlight.register('dos', dos);
 lowlight.register('perl', perl);
 
 lowlight.register('json', json);
+
+lowlight.register('scheme', scheme);
 
 const alias: Record<string, string> = {
   mdown: 'markdown',

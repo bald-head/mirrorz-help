@@ -1,25 +1,28 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 import { useRouter } from 'next/router';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import Link from 'next/link';
 import IconHambuger from '../../icons/hamburger';
 import IconClose from '../../icons/close';
-import style9 from 'style9';
+import * as stylex from '@stylexjs/stylex';
 import MirrorZLogo from '../../mirrorz-logo';
+
+import { useMediaQuery } from 'foxact/use-media-query';
 
 import Sidebar from './sidebar';
 import DarkModeSwitch from '../darkmode-switch';
 import { SearchButtonInSideNav, SearchButtonOnMobile } from '../../search/button';
-import { useLayoutEffect } from 'foxact/use-isomorphic-layout-effect';
 
-const styles = style9.create({
+const styles = stylex.create({
   container: {
     position: 'sticky',
     top: 0,
-    '@media screen and (min-width: 840px)': {
-      bottom: 0,
-      height: '100vh'
+    bottom: {
+      '@media (min-width: 840px)': 0
+    },
+    height: {
+      '@media (min-width: 840px)': '100vh'
     },
     display: 'flex',
     flexDirection: 'column'
@@ -30,20 +33,31 @@ const styles = style9.create({
   header: {
     alignItems: 'center',
     width: '100%',
-    display: 'flex',
+    display: {
+      default: 'flex',
+      '@media (min-width: 840px)': 'block'
+    },
     zIndex: 50,
     justifyContent: 'space-between',
     backgroundColor: 'var(--bg-wash)',
-    paddingTop: 0,
+    paddingTop: {
+      default: 0,
+      '@media (min-width: 840px)': '16px'
+    },
     paddingRight: '20px',
+    paddingLeft: {
+      default: 0,
+      '@media (min-width: 840px)': '20px'
+    },
+    paddingBottom: {
+      default: 0,
+      '@media (min-width: 840px)': '16px'
+    },
     borderStyle: 'solid',
     borderColor: 'var(--border-secondary)',
-    '@media screen and (min-width: 840px)': {
-      display: 'block',
-      paddingTop: '16px',
-      paddingLeft: '20px',
-      paddingBottom: '16px',
-      borderBottomWidth: '1px'
+    borderBottomWidth: {
+      default: 0,
+      '@media (min-width: 840px)': '1px'
     }
   },
   header_open: {
@@ -52,20 +66,24 @@ const styles = style9.create({
   header_inner: {
     display: 'flex',
     alignItems: 'center',
-    '@media screen and (min-width: 1280px)': {
-      width: '100%',
-      maxWidth: '336px'
+    width: {
+      default: 'auto',
+      '@media (min-width: 1280px)': '100%'
+    },
+    maxWidth: {
+      default: 'none',
+      '@media (min-width: 1280px)': '336px'
     }
   },
   menu_button: {
-    display: 'flex',
+    display: {
+      default: 'flex',
+      '@media (min-width: 840px)': 'none'
+    },
     alignItems: 'center',
     height: '100%',
     paddingLeft: '16px',
-    paddingRight: '16px',
-    '@media screen and (min-width: 840px)': {
-      display: 'none'
-    }
+    paddingRight: '16px'
   },
   menu_button_open: {
     marginRight: 0
@@ -79,13 +97,13 @@ const styles = style9.create({
     alignItems: 'center',
     paddingTop: '4px',
     paddingBottom: '4px',
-    marginRight: 0,
+    marginRight: {
+      default: 0,
+      '@media (min-width: 640px)': '12px'
+    },
     fontSize: 20,
     flexGrow: 1,
-    whiteSpace: 'nowrap',
-    '@media screen and (min-width: 640px)': {
-      marginRight: '12px'
-    }
+    whiteSpace: 'nowrap'
   },
   logo: {
     width: '24px',
@@ -93,25 +111,32 @@ const styles = style9.create({
     marginRight: '8px'
   },
   search_container_inside_nav: {
-    display: 'none',
-    '@media screen and (min-width: 840px)': {
-      display: 'block',
-      paddingTop: '16px'
+    display: {
+      default: 'none',
+      '@media (min-width: 840px)': 'block'
+    },
+    paddingTop: {
+      default: 0,
+      '@media (min-width: 840px)': '16px'
     }
   },
   hidden_on_mobile_then_flex: {
-    display: 'none',
-    '@media screen and (min-width: 840px)': {
-      display: 'flex'
+    display: {
+      default: 'none',
+      '@media (min-width: 840px)': 'flex'
     }
   },
   search_container_on_mobile: {
-    display: 'flex',
-    margin: '16px 0',
+    display: {
+      default: 'flex',
+      '@media (min-width: 840px)': 'none'
+    },
+    marginBlock: '16px',
+    marginInline: '0',
     width: '100%',
-    '@media screen and (min-width: 840px)': {
-      display: 'none',
-      maxWidth: '384px'
+    maxWidth: {
+      default: 'none',
+      '@media (min-width: 840px)': '384px'
     },
     justifyContent: 'flex-end'
   },
@@ -119,22 +144,31 @@ const styles = style9.create({
     overflowY: 'scroll',
     backgroundColor: 'var(--bg-wash)',
     flexGrow: 1,
-    paddingLeft: '16px',
-    '@media screen and (min-width: 840px)': {
-      width: '336px',
-      paddingLeft: 0
+    paddingLeft: {
+      default: '16px',
+      '@media (min-width: 840px)': 0
+    },
+    width: {
+      default: '100%',
+      '@media (min-width: 840px)': '336px'
     }
   },
   aside: {
     flexDirection: 'column',
     width: '100%',
-    paddingBottom: '32px',
+    paddingBottom: {
+      default: '32px',
+      '@media (min-width: 840px)': 0
+    },
     zIndex: 10,
-    '@media screen and (min-width: 840px)': {
-      display: 'flex',
-      flexGrow: 1,
-      paddingBottom: 0,
-      maxWidth: '336px'
+    display: {
+      '@media (min-width: 840px)': 'flex'
+    },
+    flexGrow: {
+      '@media (min-width: 840px)': 1
+    },
+    maxWidth: {
+      '@media (min-width: 840px)': '336px'
     }
   },
   aside_open: {
@@ -142,30 +176,36 @@ const styles = style9.create({
     zIndex: 40
   },
   aside_close: {
-    display: 'none',
-    '@media screen and (min-width: 840px)': {
-      display: 'block'
+    display: {
+      default: 'none',
+      '@media (min-width: 840px)': 'block'
     }
   },
   nav: {
     width: '100%',
     flexGrow: 1,
-    paddingRight: 0,
+    paddingRight: {
+      '@media (min-width: 840px)': '20px'
+    },
     paddingTop: '12px',
-    '@media screen and (min-width: 840px)': {
-      height: 'auto',
-      paddingRight: '20px',
-      paddingBottom: '24px'
+    height: {
+      '@media (min-width: 840px)': 'auto'
+    },
+    paddingBottom: {
+      '@media (min-width: 840px)': '24px'
     }
   }
 });
+
+const mobileOrTabletMediaQuery = '(max-width: 839px)';
 
 function Nav() {
   const [isOpen, setIsOpen] = useState(false);
   const handleOpen = useCallback(() => setIsOpen(isOpen => !isOpen), []);
 
   const scrollParentRef = useRef<HTMLDivElement>(null);
-  const asPath = useRouter().asPath;
+
+  const router = useRouter();
 
   // While the overlay is open, disable body scroll.
   useEffect(() => {
@@ -177,61 +217,68 @@ function Nav() {
   }, [isOpen]);
 
   // Close the overlay on any navigation.
-  useLayoutEffect(() => {
-    setIsOpen(false);
-  }, [asPath]);
+  useEffect(() => {
+    const close = () => setIsOpen(false);
+
+    router.events.on('routeChangeComplete', close);
+    router.events.on('routeChangeError', close);
+    return () => {
+      router.events.off('routeChangeComplete', close);
+      router.events.off('routeChangeError', close);
+    };
+  }, [router.events]);
 
   // Also close the overlay if the window gets resized past mobile layout.
   // (This is also important because we don't want to keep the body locked!)
   useEffect(() => {
-    const media = window.matchMedia('(max-width: 839px)');
+    const media = window.matchMedia(mobileOrTabletMediaQuery);
     function closeIfNeeded() {
       if (!media.matches) {
-        // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect -- missing event listener from useRouter
         setIsOpen(false);
       }
     }
-    closeIfNeeded();
     media.addEventListener('change', closeIfNeeded);
     return () => {
       media.removeEventListener('change', closeIfNeeded);
     };
   }, []);
 
+  // Only when isMobileOrTablet is true do we care about if isOpen should be applied.
+  // On desktop, we don't care about isOpen at all.
+  const isMobileOrTablet = useMediaQuery(mobileOrTabletMediaQuery, false);
+
   return (
-    <div className={styles('container', isOpen && 'container_open')}>
-      <div className={styles('header', isOpen && 'header_open')}>
-        <div className={styles('header_inner')}>
+    <div {...stylex.props(styles.container, isMobileOrTablet && isOpen && styles.container_open)}>
+      <div {...stylex.props(styles.header, isMobileOrTablet && isOpen && styles.header_open)}>
+        <div {...stylex.props(styles.header_inner)}>
           <button
             type="button"
             aria-label="Menu"
             onClick={handleOpen}
-            className={styles('menu_button', isOpen && 'menu_button_open')}
+            {...stylex.props(styles.menu_button, isMobileOrTablet && isOpen && styles.menu_button_open)}
           >
-            {
-              isOpen
-                ? <IconClose className={styles('icon')} />
-                : <IconHambuger className={styles('icon')} />
-            }
+            {isOpen
+              ? <IconClose {...stylex.props(styles.icon)} />
+              : <IconHambuger {...stylex.props(styles.icon)} />}
           </button>
-          <Link href="/" className={styles('title')}>
-            <MirrorZLogo className={styles('logo')} />
+          <Link href="/" {...stylex.props(styles.title)}>
+            <MirrorZLogo {...stylex.props(styles.logo)} />
             {/* <Logo className="text-sm mr-2 w-8 h-8 text-link dark:text-link-dark" /> */}
             <h1>MirrorZ Help</h1>
           </Link>
-          <div className={styles('hidden_on_mobile_then_flex')}>
+          <div {...stylex.props(styles.hidden_on_mobile_then_flex)}>
             <DarkModeSwitch />
           </div>
         </div>
         {!isOpen && (
-          <div className={styles('search_container_inside_nav')}>
+          <div {...stylex.props(styles.search_container_inside_nav)}>
             <SearchButtonInSideNav />
           </div>
         )}
         {/* <div className="px-0 pt-2 w-full 2xl:max-w-xs hidden lg:flex items-center self-center border-b-0 lg:border-b border-border dark:border-border-dark">
           <p>Tab</p>
         </div> */}
-        <div className={styles('search_container_on_mobile')}>
+        <div {...stylex.props(styles.search_container_on_mobile)}>
           <SearchButtonOnMobile />
           <DarkModeSwitch />
         </div>
@@ -245,14 +292,16 @@ function Nav() {
 
       <div
         ref={scrollParentRef}
-        className={clsx('no-bg-scrollbar', styles('nav_container'))}
+        style={stylex.props(styles.nav_container).style}
+        {...stylex.props(styles.nav_container)}
+        className={clsx('no-bg-scrollbar', stylex.props(styles.nav_container).className)}
       >
         <aside
-          className={styles('aside', isOpen ? 'aside_open' : 'aside_close')}
+          {...stylex.props(styles.aside, isOpen ? styles.aside_open : styles.aside_close)}
         >
           <nav
             role="navigation"
-            className={styles('nav')}
+            {...stylex.props(styles.nav)}
           >
             <Sidebar />
           </nav>

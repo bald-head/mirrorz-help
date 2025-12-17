@@ -12,6 +12,7 @@ module.exports = require('eslint-config-sukka').sukka(
       ]
     },
     node: {
+      enable: true,
       files: [
         '**/*.js'
       ]
